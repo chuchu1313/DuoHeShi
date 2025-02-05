@@ -11,6 +11,6 @@ app.get('/settings', async (req, res) => {
     console.log('Get setting done.');
 });
 
-app.listen(3000, async () => {
+app.listen(process.env.PORT || 3000, async () => {
     console.log('listening on 3000');
 });
