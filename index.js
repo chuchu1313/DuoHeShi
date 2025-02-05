@@ -3,8 +3,9 @@ const line = require('@line/bot-sdk');
 
 const app = express();
 
-app.post('/webhook', line.middleware(config), (req, res) => {
+app.post('/webhook', async (req, res) => {
     res.send('Hello');
+    console.log('webhook.');
 });
 
 app.listen(process.env.PORT || 3000, async () => {
