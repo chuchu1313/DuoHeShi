@@ -21,12 +21,13 @@ app.get("/", (req, res) => {
 
 
 app.post("/webhook", function (req, res) {
-    console.log(req.body);
-    console.log(req.body.events[0]);
-    console.log(req.body.events[0].source);
     res.send("HTTP POST request sent to the webhook URL!");
-    if (req.body.events[0].type === "message") {
-        const inputTxt = req.body.events[0].message.text;
+    const event = req.body.events[0];
+    if (event.source.type !== "group") return;
+    const groupId = event.source.groupId;
+    const userId = event.source.userId;
+    if (event.type === "message") {
+        const inputTxt = event.message.text;
         console.log(`Got the message ${inputTxt} from the user`);
         const regex = /^(?:[1-9][0-9]{1,2}|1000)$/;
 
@@ -34,52 +35,74 @@ app.post("/webhook", function (req, res) {
             return;
         }
         // add to today's water intake
-        if (!LOCAL_CACHE[req.body.events[0].source.userId]) {
-            LOCAL_CACHE[req.body.events[0].source.userId] = {};
+        if (!LOCAL_CACHE[groupId]) {
+            LOCAL_CACHE[groupId] = {};
         }
+        if (!LOCAL_CACHE[groupId][userId]) {
+            LOCAL_CACHE[groupId][userId] = {};
+        }
+
         const date = new Date();
         const formattedDate = date.toLocaleDateString('en-CA');
         const drankWater = Number(inputTxt);
-        let previousWater = 0;
-        previousWater = LOCAL_CACHE[req.body.events[0].source.userId][formattedDate] || 0;
+        let previousWater = LOCAL_CACHE[groupId][userId][formattedDate] || 0;
         const totalWater = previousWater + drankWater;
-        LOCAL_CACHE[req.body.events[0].source.userId][formattedDate] = totalWater;
+        LOCAL_CACHE[groupId][userId][formattedDate] = totalWater;
 
         returnDrankWater(req, drankWater, totalWater);
     }
 });
-//
-// const config = {
-//     channelId: BOT_ID,
-//     channelSecret: SECRET,
-//     channelAccessToken: TOKEN
-//
-// };
-// const client = new line.Client(config);
-// setInterval(function () {
-//     const now = new Date();
-//     const hours = now.getHours();  // 當前小時（24 小時制）
-//
-//     if (hours >= 10 && hours <= 18s) {
-//         Object.keys(LOCAL_CACHE).forEach((userId) => {
-//             const message = {
-//                 type: 'text',
-//                 text: '今天喝水量不足，快喝水！',
-//                 mentions: [{
-//                     userId: userId
-//                 }]
-//             };
-//             client.pushMessage(, message)
-//                 .then(() => {
-//                     console.log('Message sent: ' + userId);
-//                 })
-//                 .catch((err) => {
-//                     console.error('Error sending message: ', err);
-//                 });
-//         });
-//
-//     }
-// }, 1000 * 60);
+
+const config = {
+    channelId: BOT_ID,
+    channelSecret: SECRET,
+    channelAccessToken: TOKEN
+
+};
+const client = new line.Client(config);
+
+setInterval(function () {
+    const date = new Date();
+    const hours = date.getHours();  // 當前小時（24 小時制）
+    const formattedDate = date.toLocaleDateString('en-CA');
+    const DRINK_MAP = {
+        10: 200,
+        12: 400,
+        14: 700,
+        16: 1000,
+        18: 1200,
+    };
+    if (hours >= 10 && hours <= 18) {
+        Object.keys(LOCAL_CACHE).forEach((groupId) => {
+            Object.keys(LOCAL_CACHE[groupId]).forEach((userId) => {
+                if (!LOCAL_CACHE[groupId][userId][formattedDate] || LOCAL_CACHE[groupId][userId][formattedDate] <= DRINK_MAP[hours]) {
+                    const previousWater = LOCAL_CACHE[groupId][userId][formattedDate] || 0;
+                    client.getProfile(userId)
+                        .then((profile) => {
+                            const message = {
+                                type: 'text',
+                                text: `$ ${profile.displayName} 喝水量只有${previousWater}，快喝水！`,
+                                emojis: [
+                                    {
+                                        index: 0,  // "$" 在字串中的位置
+                                        productId: "670e0cce840a8236ddd4ee4c", // LINE emoji 套件 ID
+                                        emojiId: "009" // 🥤（LINE emoji ID）
+                                    },
+                                ]
+                            };
+                            client.pushMessage(groupId, message)
+                                .then(() => {
+                                    console.log('Message sent: ' + userId);
+                                })
+                                .catch((err) => {
+                                    console.error('Error sending message: ', err);
+                                });
+                        })
+                }
+            });
+        });
+    }
+}, 1000 * 60 * 60 * 2); // 每2小時檢查一次
 
 app.listen(PORT, () => {
     console.log(`Example app listening at ${PORT}`);
