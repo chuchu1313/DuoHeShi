@@ -22,6 +22,8 @@ app.get("/", (req, res) => {
 
 app.post("/webhook", function (req, res) {
     console.log(req.body);
+    console.log(req.body.events[0]);
+    console.log(req.body.events[0].source);
     res.send("HTTP POST request sent to the webhook URL!");
     if (req.body.events[0].type === "message") {
         const inputTxt = req.body.events[0].message.text;
