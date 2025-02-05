@@ -20,14 +20,21 @@ app.get("/", (req, res) => {
 app.post("/webhook", function (req, res) {
     res.send("HTTP POST request sent to the webhook URL!");
     if (req.body.events[0].type === "message") {
-        console.log(`Got the message ${req.body.events[0].message.text}`)
+        const inputTxt = req.body.events[0].message.text
+        console.log(`Got the message ${inputTxt} from the user`)
+
+        const regex = /^(?:[1-9][0-9]{1,2}|1000)$/;
+        if (!regex.test(inputTxt)) {
+            return;
+        }
+        const drinkWater = Number(inputTxt);
 
         const dataString = JSON.stringify({
             replyToken: req.body.events[0].replyToken,
             messages: [
                 {
                     type: "text",
-                    text: req.body.events[0].message.text,
+                    text: drinkWater,
                 },
             ],
         });
