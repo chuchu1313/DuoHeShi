@@ -59,17 +59,21 @@ const config = {
     channelAccessToken: TOKEN
 
 };
+
 const client = new line.Client(config);
 
 setInterval(function () {
     const date = new Date();
-    const hours = date.getHours();  // 當前小時（24 小時制）
+    const hours = date.getHours();
     const formattedDate = date.toLocaleDateString('en-CA');
     const DRINK_MAP = {
         10: 200,
+        11: 300,
         12: 400,
         14: 700,
+        15: 850,
         16: 1000,
+        17: 1100,
         18: 1200,
     };
     if (hours >= 10 && hours <= 18) {
@@ -81,13 +85,13 @@ setInterval(function () {
                         .then((profile) => {
                             const message = {
                                 type: 'text',
-                                text: `$ ${profile.displayName} 喝水量只有${previousWater}，快喝水！`,
+                                text: `$ ${profile.displayName} \n 喝水量只有 ${previousWater} \n 要喝到 ${DRINK_MAP[hours]} \n 快喝水💧！`,
                                 emojis: [
                                     {
                                         index: 0,  // "$" 在字串中的位置
                                         productId: "670e0cce840a8236ddd4ee4c", // LINE emoji 套件 ID
-                                        emojiId: "009" // 🥤（LINE emoji ID）
-                                    },
+                                        emojiId: "009" // （LINE emoji ID）
+                                    }
                                 ]
                             };
                             client.pushMessage(groupId, message)
@@ -102,7 +106,7 @@ setInterval(function () {
             });
         });
     }
-}, 1000 * 60 * 60 * 2); // 每2小時檢查一次
+}, 1000 * 60 * 60); // 每1小時檢查一次
 
 app.listen(PORT, () => {
     console.log(`Example app listening at ${PORT}`);
