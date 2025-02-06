@@ -63,6 +63,7 @@ const config = {
 const client = new line.Client(config);
 
 setInterval(function () {
+    console.log('Start Cronjob running');
     const date = new Date();
     const hours = date.getHours();
     const formattedDate = date.toLocaleDateString('en-CA');
@@ -70,6 +71,7 @@ setInterval(function () {
         10: 200,
         11: 300,
         12: 400,
+        13: 500,
         14: 700,
         15: 850,
         16: 1000,
@@ -79,7 +81,9 @@ setInterval(function () {
     if (hours >= 10 && hours <= 18) {
         Object.keys(LOCAL_CACHE).forEach((groupId) => {
             Object.keys(LOCAL_CACHE[groupId]).forEach((userId) => {
-                if (!LOCAL_CACHE[groupId][userId][formattedDate] || LOCAL_CACHE[groupId][userId][formattedDate] <= DRINK_MAP[hours]) {
+                console.log(`Cronjob ${groupId}, ${userId}, ${formattedDate}, ${LOCAL_CACHE[groupId][userId][formattedDate]} <= ${DRINK_MAP[hours]} `);
+                if (!LOCAL_CACHE[groupId][userId][formattedDate] || LOCAL_CACHE[groupId][userId][formattedDate] <= DRINK_MAP[hours] ) {
+                    console.log(`Drink water: ${LOCAL_CACHE[groupId][userId][formattedDate]}, should >= ${DRINK_MAP[hours]}`);
                     const previousWater = LOCAL_CACHE[groupId][userId][formattedDate] || 0;
                     client.getProfile(userId)
                         .then((profile) => {
