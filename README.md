@@ -18,14 +18,14 @@
 - 加入多喝水機器人為好友
 <img width="299" alt="iShot_2025-02-07_16 25 11" src="https://github.com/user-attachments/assets/0c00c23e-6bdc-460b-9e1b-e0d4636dab3c" />
 
-- 將機器人加入群組 (所有加入群組的人都需要加入機器人為好友）
+- 將機器人加入群組 (所有加入群組的人都需要加入DuoHeShui機器人為好友）
 - 輸入本次飲水量：數字 0~1000
 <img width="475" alt="iShot_2025-02-07_11 21 31" src="https://github.com/user-attachments/assets/435319ba-d027-4871-9556-6d7144c9c5bd" />
 
 - 提醒飲水量
 <img width="482" alt="iShot_2025-02-07_11 21 38" src="https://github.com/user-attachments/assets/525c3a96-3e25-4f0b-a694-985ac197eb2b" />
 
-- 若群組內有人無加入機器人為好友，則名字將無法獲取
+- 若群組內有人無加入DuoHeShui機器人為好友，則名字將無法獲取
 <img width="317" alt="iShot_2025-02-07_16 29 31" src="https://github.com/user-attachments/assets/4e15ab06-2f77-4869-a10d-210648b37980" />
 
 ## 需求
