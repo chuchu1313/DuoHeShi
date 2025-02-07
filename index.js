@@ -65,9 +65,9 @@ const client = new line.Client(config);
 setInterval(function () {
     console.log('Start Cronjob running');
     const date = new Date();
-    const hours = date.getHours();
+    let hours = date.getHours();
     const formattedDate = date.toLocaleDateString('en-CA');
-    console.log('hours + ' + hours);
+    hours += 8;
     const DRINK_MAP = {
         10: 200,
         11: 300,
@@ -83,7 +83,7 @@ setInterval(function () {
         Object.keys(LOCAL_CACHE).forEach((groupId) => {
             Object.keys(LOCAL_CACHE[groupId]).forEach((userId) => {
                 console.log(`Cronjob ${groupId}, ${userId}, ${formattedDate}, ${LOCAL_CACHE[groupId][userId][formattedDate]} <= ${DRINK_MAP[hours]} `);
-                if (!LOCAL_CACHE[groupId][userId][formattedDate] || LOCAL_CACHE[groupId][userId][formattedDate] <= DRINK_MAP[hours] ) {
+                if (!LOCAL_CACHE[groupId][userId][formattedDate] || LOCAL_CACHE[groupId][userId][formattedDate] <= DRINK_MAP[hours]) {
                     console.log(`Drink water: ${LOCAL_CACHE[groupId][userId][formattedDate]}, should >= ${DRINK_MAP[hours]}`);
                     const previousWater = LOCAL_CACHE[groupId][userId][formattedDate] || 0;
                     client.getProfile(userId)
@@ -106,12 +106,12 @@ setInterval(function () {
                                 .catch((err) => {
                                     console.error('Error sending message: ', err);
                                 });
-                        })
+                        });
                 }
             });
         });
     }
-}, 1000 * 5); // 每1小時檢查一次
+}, 1000 * 10); // 每1小時檢查一次
 
 app.listen(PORT, () => {
     console.log(`Example app listening at ${PORT}`);
