@@ -10,6 +10,11 @@
 - 以群組和使用者為單位，將飲水資料儲存在本地快取中。
 - 機器人會在每天 10:00 AM - 6:00 PM 之間每小時發送提醒。
 - 可在群組聊天中使用。
+- 紀錄本次水量/已喝水量
+<img width="475" alt="iShot_2025-02-07_11 21 31" src="https://github.com/user-attachments/assets/435319ba-d027-4871-9556-6d7144c9c5bd" />
+
+- 每小時不到建議飲水量時，發送提醒
+<img width="482" alt="iShot_2025-02-07_11 21 38" src="https://github.com/user-attachments/assets/525c3a96-3e25-4f0b-a694-985ac197eb2b" />
 
 ## 需求
 
