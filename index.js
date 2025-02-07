@@ -67,6 +67,7 @@ setInterval(function () {
     const date = new Date();
     const hours = date.getHours();
     const formattedDate = date.toLocaleDateString('en-CA');
+    console.log('hours + ' + hours);
     const DRINK_MAP = {
         10: 200,
         11: 300,
@@ -110,7 +111,7 @@ setInterval(function () {
             });
         });
     }
-}, 1000 * 60 * 60); // 每1小時檢查一次
+}, 1000 * 5); // 每1小時檢查一次
 
 app.listen(PORT, () => {
     console.log(`Example app listening at ${PORT}`);
