@@ -64,8 +64,13 @@ const client = new line.Client(config);
 
 setInterval(function () {
     console.log('Start Cronjob running');
+    console.log(LOCAL_CACHE);
     const date = new Date();
     let hours = date.getHours();
+    let minutes = date.getMinutes();
+    console.log(minutes)
+    if(minutes !== 0) return;
+
     const formattedDate = date.toLocaleDateString('en-CA');
     hours += 8;
     const DRINK_MAP = {
@@ -74,10 +79,10 @@ setInterval(function () {
         12: 400,
         13: 500,
         14: 700,
-        15: 850,
-        16: 1000,
-        17: 1100,
-        18: 1200,
+        15: 1000,
+        16: 1200,
+        17: 1400,
+        18: 1600,
     };
     if (hours >= 10 && hours <= 18) {
         Object.keys(LOCAL_CACHE).forEach((groupId) => {
@@ -111,7 +116,7 @@ setInterval(function () {
             });
         });
     }
-}, 1000 * 60 * 60); // 每1小時檢查一次
+}, 1000 * 60); // 每1小時檢查一次
 
 app.listen(PORT, () => {
     console.log(`Example app listening at ${PORT}`);
