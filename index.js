@@ -111,7 +111,7 @@ setInterval(function () {
             });
         });
     }
-}, 1000 * 10); // 每1小時檢查一次
+}, 1000 * 60 * 60); // 每1小時檢查一次
 
 app.listen(PORT, () => {
     console.log(`Example app listening at ${PORT}`);
