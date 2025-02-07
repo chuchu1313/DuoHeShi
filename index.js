@@ -21,7 +21,6 @@ app.get("/", (req, res) => {
 
 
 app.post("/webhook", function (req, res) {
-    res.send("HTTP POST request sent to the webhook URL!");
     const event = req.body.events[0];
     if (event.source.type !== "group") return;
     const groupId = event.source.groupId;
@@ -29,7 +28,7 @@ app.post("/webhook", function (req, res) {
     if (event.type === "message") {
         const inputTxt = event.message.text;
         console.log(`Got the message ${inputTxt} from the user`);
-        const regex = /^(?:[1-9][0-9]{1,2}|1000)$/;
+        const regex = /^(?:[0-9]{1,3}|1000)$/; // 0~1000
 
         if (!regex.test(inputTxt)) {
             return;
@@ -62,17 +61,16 @@ const config = {
 
 const client = new line.Client(config);
 
-setInterval(function () {
+setInterval(async function () {
     console.log('Start Cronjob running');
     console.log(LOCAL_CACHE);
     const date = new Date();
     let hours = date.getHours();
     let minutes = date.getMinutes();
-    console.log(minutes)
-    if(minutes !== 0) return;
+    if (minutes !== 0) return;
 
     const formattedDate = date.toLocaleDateString('en-CA');
-    hours += 8;
+    hours += 8; // server is UTC+0
     const DRINK_MAP = {
         10: 200,
         11: 300,
@@ -85,43 +83,46 @@ setInterval(function () {
         18: 1600,
     };
     if (hours >= 10 && hours <= 18) {
-        Object.keys(LOCAL_CACHE).forEach((groupId) => {
-            Object.keys(LOCAL_CACHE[groupId]).forEach((userId) => {
+        for (const groupId of Object.keys(LOCAL_CACHE)) {
+            for (const userId of Object.keys(LOCAL_CACHE[groupId])) {
                 console.log(`Cronjob ${groupId}, ${userId}, ${formattedDate}, ${LOCAL_CACHE[groupId][userId][formattedDate]} <= ${DRINK_MAP[hours]} `);
                 if (!LOCAL_CACHE[groupId][userId][formattedDate] || LOCAL_CACHE[groupId][userId][formattedDate] <= DRINK_MAP[hours]) {
                     console.log(`Drink water: ${LOCAL_CACHE[groupId][userId][formattedDate]}, should >= ${DRINK_MAP[hours]}`);
                     const previousWater = LOCAL_CACHE[groupId][userId][formattedDate] || 0;
-                    client.getProfile(userId)
-                        .then((profile) => {
-                            const message = {
-                                type: 'text',
-                                text: `$ ${profile.displayName} \n 喝水量只有 ${previousWater} \n 要喝到 ${DRINK_MAP[hours]} \n 快喝水💧！`,
-                                emojis: [
-                                    {
-                                        index: 0,  // "$" 在字串中的位置
-                                        productId: "670e0cce840a8236ddd4ee4c", // LINE emoji 套件 ID
-                                        emojiId: "009" // （LINE emoji ID）
-                                    }
-                                ]
-                            };
-                            client.pushMessage(groupId, message)
-                                .then(() => {
-                                    console.log('Message sent: ' + userId);
-                                })
-                                .catch((err) => {
-                                    console.error('Error sending message: ', err);
-                                });
+                    let profile = '';
+                    let message = {
+                        type: 'text',
+                        text: '',
+                        emojis: [
+                            {
+                                index: 0,  // "$" index in the string
+                                productId: "670e0cce840a8236ddd4ee4c", // LINE emoji package ID
+                                emojiId: "009" // （LINE emoji ID）
+                            }
+                        ]
+                    };
+                    try {
+                        profile = await client.getProfile(userId);
+                        message.text = `$ ${profile.displayName} \n 喝水量只有 ${previousWater} \n 要喝到 ${DRINK_MAP[hours]} \n 快喝水💧！`;
+                    } catch (e) {
+                        message.text = `$ ～使用者未加入機器人為好友～ \n 喝水量只有 ${previousWater} \n 要喝到 ${DRINK_MAP[hours]} \n 快喝水💧！`;
+                    }
+                    client.pushMessage(groupId, message)
+                        .then(() => {
+                            console.log('Message sent: ' + userId);
+                        })
+                        .catch((err) => {
+                            console.error('Error sending message: ', err);
                         });
                 }
-            });
-        });
+            }
+        }
     }
-}, 1000 * 60); // 每1小時檢查一次
+}, 1000 * 60); // check per min
 
 app.listen(PORT, () => {
     console.log(`Example app listening at ${PORT}`);
 });
-
 
 function returnDrankWater(req, drankWater, totalWater) {
     const dataString = JSON.stringify({
