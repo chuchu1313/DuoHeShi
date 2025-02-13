@@ -16,7 +16,6 @@
 
 ## 使用方式
 - 加入多喝水機器人為好友
-<img width="299" alt="iShot_2025-02-07_16 25 11" src="https://github.com/user-attachments/assets/0c00c23e-6bdc-460b-9e1b-e0d4636dab3c" />
 
 - 將機器人加入群組 (所有加入群組的人都需要加入DuoHeShui機器人為好友）
 - 輸入本次飲水量：數字 0~1000
